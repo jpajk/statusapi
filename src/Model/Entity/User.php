@@ -1,7 +1,10 @@
 <?php
+
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Auth\DefaultPasswordHasher;
+use Cake\ORM\TableRegistry;
 
 /**
  * User Entity
@@ -50,6 +53,30 @@ class User extends Entity
      */
     protected $_hidden = [
         'password',
-        'token'
     ];
+
+    /**
+     * @param string $password
+     * @return string
+     */
+    public function _setPassword(string $password): string
+    {
+        if ($password) {
+            return (new DefaultPasswordHasher())->hash($password);
+        }
+
+        return '';
+    }
+
+    /**
+     * @return bool|\Cake\Datasource\EntityInterface|false|mixed
+     */
+    public function regenerateToken()
+    {
+        $users_table = TableRegistry::getTableLocator()->get('Users');
+
+        $this->token = bin2hex(openssl_random_pseudo_bytes(50));
+
+        return $users_table->save($this);
+    }
 }

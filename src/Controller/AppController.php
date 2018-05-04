@@ -15,7 +15,6 @@ use Cake\Event\Event;
  */
 class AppController extends Controller
 {
-
     /**
      * Initialization hook method.
      *
@@ -29,10 +28,24 @@ class AppController extends Controller
     {
         parent::initialize();
 
-        $this->loadComponent('RequestHandler');
+        $this->loadComponent('RequestHandler', [
+            'enableBeforeRedirect' => false
+        ]);
         $this->loadComponent('Flash');
-        $this->loadComponent('Security');
-        $this->loadComponent('Csrf');
+        $this->loadComponent('Auth', [
+            'authenticate' => [
+                'Custom' => [
+                    'fields' => ['username' => 'email', 'password' => 'password'],
+                    'userModel' => 'Users'
+                ],
+            ],
+            'storage' => 'Memory',
+            'unauthorizedRedirect' => false
+        ]);
+
+        if ($user = $this->Auth->identify()) {
+            $this->Auth->setUser($user);
+        }
     }
 
     public function beforeFilter(Event $event)
