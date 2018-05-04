@@ -43,17 +43,32 @@ class AppController extends Controller
             'unauthorizedRedirect' => false
         ]);
 
-        if ($user = $this->Auth->identify()) {
+        $user = $this->Auth->identify();
+
+        if ($user) {
             $this->Auth->setUser($user);
         }
+
+        $this->set('current_user', $user);
     }
 
     public function beforeFilter(Event $event)
     {
         $this->set([
+            'data' => [],
             'message'    => '',
             'statusCode' => $this->getResponse()->getStatusCode()
         ]);
+
+        $input_data = (array) $this->getRequest()->input('json_decode');
+
+        if ($input_data) {
+            foreach ($input_data as $index => $input_datum) {
+                $this->setRequest(
+                    $this->getRequest()->withData($index, $input_datum)
+                );
+            }
+        }
     }
 
     public function beforeRender(Event $event)

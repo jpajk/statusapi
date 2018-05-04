@@ -15,6 +15,15 @@
  * @license       MIT License (https://opensource.org/licenses/mit-license.php)
  */
 
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']) &&
+        $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'] == 'GET') {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With');
+    }
+    exit;
+}
+
 // Check platform requirements
 require dirname(__DIR__) . '/config/requirements.php';
 

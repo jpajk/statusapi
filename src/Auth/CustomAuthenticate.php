@@ -42,6 +42,7 @@ class CustomAuthenticate extends BasicAuthenticate
     public function findByToken(string $header)
     {
         $token = trim(str_replace('Bearer', '', $header));
+
         return TableRegistry::getTableLocator()->get('Users')->findByToken($token)->first();
     }
 }

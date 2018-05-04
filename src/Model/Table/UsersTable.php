@@ -1,6 +1,7 @@
 <?php
 namespace App\Model\Table;
 
+use App\Model\Entity\User;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
@@ -63,29 +64,6 @@ class UsersTable extends Table
             ->notEmpty('password');
 
         $validator
-            ->scalar('name')
-            ->maxLength('name', 255)
-            ->requirePresence('name', 'create')
-            ->notEmpty('name');
-
-        $validator
-            ->scalar('lastname')
-            ->maxLength('lastname', 255)
-            ->requirePresence('lastname', 'create')
-            ->notEmpty('lastname');
-
-        $validator
-            ->scalar('phone')
-            ->maxLength('phone', 255)
-            ->requirePresence('phone', 'create')
-            ->notEmpty('phone');
-
-        $validator
-            ->scalar('address')
-            ->requirePresence('address', 'create')
-            ->notEmpty('address');
-
-        $validator
             ->boolean('active')
             ->requirePresence('active', 'create')
             ->notEmpty('active');
@@ -111,5 +89,27 @@ class UsersTable extends Table
         $rules->add($rules->isUnique(['email']));
 
         return $rules;
+    }
+
+    /**
+     * @param string $email
+     * @param string $password
+     * @return User
+     */
+    public function findByEmailOrCreate(string $email, string $password): User
+    {
+        $user = $this->findByEmail($email)->first();
+
+        if (!$user) {
+            $user = $this->newEntity([
+                'email' => $email,
+                'password' => $password,
+                'active' => true
+            ]);
+        }
+
+        $user->regenerateToken();
+
+        return $user;
     }
 }
